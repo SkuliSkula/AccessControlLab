@@ -13,6 +13,7 @@ import java.io.IOException;
 public class JSONHandler {
     private final String LOGIN_FILE_PATH = "C:\\Git\\AccessControlLab\\login\\logins.json";
     private final String SERVICE_LOG_FILE_PATH = "C:\\Git\\AccessControlLab\\login\\servicelog.json";
+    private final String PERMISSIONS_FILE_PATH = "C:\\Git\\AccessControlLab\\permission\\permissions.json";
     public JSONHandler() {
         try {
             createJSONLoginFile();
@@ -21,7 +22,7 @@ public class JSONHandler {
             e.printStackTrace();
         }
     }
-    public boolean writeJSON(String userName, String password,String salt) throws IOException {
+    public boolean writeJSONLogin(String userName, String password, String salt) throws IOException {
         JSONObject mainObject = readJSON(LOGIN_FILE_PATH);
         JSONArray arr = (JSONArray) mainObject.get("logins");
 

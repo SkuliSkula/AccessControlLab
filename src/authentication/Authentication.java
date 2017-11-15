@@ -18,7 +18,7 @@ public class Authentication {
         return false;
     }
     public boolean registerUser(String userName, String password) throws IOException {
-        return jsonHandler.writeJSON(userName,hashAndSaltPassword(password),salt);
+        return jsonHandler.writeJSONLogin(userName,hashAndSaltPassword(password),salt);
     }
     public boolean verifyLogIn(String userName, String password) {
         JSONObject jsonObject = jsonHandler.readJSON(jsonHandler.getLoginFilePath());

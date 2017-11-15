@@ -11,8 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class JSONHandler {
-    private final String LOGIN_FILE_PATH = "C:\\Git\\DataSecurity\\login\\logins.json";
-    private final String SERVICE_LOG_FILE_PATH = "C:\\Git\\DataSecurity\\login\\servicelog.json";
+    private final String LOGIN_FILE_PATH = "C:\\Git\\AccessControlLab\\login\\logins.json";
+    private final String SERVICE_LOG_FILE_PATH = "C:\\Git\\AccessControlLab\\login\\servicelog.json";
     public JSONHandler() {
         try {
             createJSONLoginFile();

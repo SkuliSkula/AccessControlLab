@@ -47,6 +47,11 @@
               <item name="AccessControlLab" type="b2602c69:ProjectViewProjectNode" />
               <item name="AccessControlLab" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="AccessControlLab" type="b2602c69:ProjectViewProjectNode" />
+              <item name="AccessControlLab" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -166,12 +171,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1510761977086</updated>
-      <workItem from="1510761980038" duration="336000" />
+      <workItem from="1510761980038" duration="484000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="336000" />
+    <option name="totallyTimeSpent" value="484000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />

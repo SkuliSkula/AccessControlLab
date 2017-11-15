@@ -7,5 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="commons-codec-1.11" level="project" />
+    <orderEntry type="library" name="commons-crypto-1.0.0" level="project" />
+    <orderEntry type="library" name="commons-lang3-3.6" level="project" />
+    <orderEntry type="library" name="json-simple-1.1.1" level="project" />
   </component>
 </module>

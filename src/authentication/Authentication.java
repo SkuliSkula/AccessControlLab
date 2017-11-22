@@ -1,5 +1,6 @@
 package authentication;
 
+import constants.LoginConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.simple.JSONArray;
@@ -12,33 +13,32 @@ public class Authentication {
     public Authentication(JSONHandler jsonHandler) {
         this.jsonHandler = jsonHandler;
     }
-    public boolean handleLogIn(String userName, String password) throws IOException{
-        if(verifyLogIn(userName, password))
-            return true;
-        return false;
+    public String handleLogIn(String userName, String password) throws IOException{
+        return verifyLogIn(userName, password);
+
     }
-    public boolean registerUser(String userName, String password) throws IOException {
-        return jsonHandler.writeJSONLogin(userName,hashAndSaltPassword(password),salt);
+    public boolean registerUser(String userName, String password, String role) throws IOException {
+        return jsonHandler.writeJSONLogin(userName,hashAndSaltPassword(password),salt, role);
     }
-    public boolean verifyLogIn(String userName, String password) {
+    public String verifyLogIn(String userName, String password) {
         JSONObject jsonObject = jsonHandler.readJSON(jsonHandler.getLoginFilePath());
-        JSONArray passwordKeeper = (JSONArray) jsonObject.get("logins");
-        boolean logIn = false;
+        JSONArray passwordKeeper = (JSONArray) jsonObject.get(LoginConstants.LOGINS);
+        String role = "";
         if(passwordKeeper == null) {
             System.out.println("Problem with login file");
-            return logIn;
+            return role;
         }else{
             for(int i = 0; i < passwordKeeper.size(); i++) {
                 JSONObject obj = (JSONObject) passwordKeeper.get(i);
-                String pass = (String) obj.get("Password");
-                String salt = (String) obj.get("Salt");
-                if(userName.equals(obj.get("UserName")) && pass.equals(unHashPassword(password,salt))){
-                    logIn = true;
+                String pass = (String) obj.get(LoginConstants.PASSWORD);
+                String salt = (String) obj.get(LoginConstants.SALT);
+                if(userName.equals(obj.get(LoginConstants.USER_NAME)) && pass.equals(unHashPassword(password,salt))){
+                    role = (String) obj.get(LoginConstants.ROLE);
                     break;
                 }
             }
         }
-        return logIn;
+        return role;
     }
     private String hashAndSaltPassword(String password) {
         salt = RandomStringUtils.randomAscii(20);

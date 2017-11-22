@@ -13,6 +13,7 @@ public interface IPrintServer extends Remote{
     void status(String userName) throws RemoteException;
     void readConfig(String userName,String parameter) throws RemoteException;
     void setConfig(String userName,String parameter) throws RemoteException;
-    boolean handleLogIn(String userName, String password) throws RemoteException;
-    boolean registerClient(String userName, String password) throws RemoteException;
+    String handleLogIn(String userName, String password) throws RemoteException;
+    boolean registerClient(String userName, String password, String role) throws RemoteException;
+    void changeUsersRole(String userName, String newRole) throws RemoteException;
 }

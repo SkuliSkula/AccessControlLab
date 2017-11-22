@@ -1,10 +1,14 @@
+import accesscontrol.Role;
 import client.Client;
+import operations.Operation;
 import server.Server;
 
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class TestMain {
@@ -16,27 +20,33 @@ public class TestMain {
             Registry registry = LocateRegistry.createRegistry(1099, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory(null, null, true));
             registry.bind("server", server);
             Client client = new Client(registry);
-
+            Operation operations = new Operation();
+            List<String> operationList = null;
             Scanner sc = new Scanner(System.in);
-            int operation;
+            int operation = 0;
             do {
-                if (!client.isLoggedIn())
-                    logInMenu();
-                else
-                    printMenu();
+                if(!client.isLoggedIn()){
+                    startMenu();
+                    operation = sc.nextInt();
+                }
+                else {
+                    operationList = operations.getOperations(client.getRole());
+                    System.out.println("User: " + client.getClientName());
+                    System.out.println("Role: " + client.getRole());
+                    for(int i = 0; i < operationList.size(); i++){
+                        System.out.println(i + ") " + operationList.get(i));
+                    }
+                }
 
-                operation = sc.nextInt();
-                handleOperation(client,operation);
-
+                handleOperation(client,operation, operationList, server);
             }while (operation != 0);
 
         }catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    private static void handleOperation(Client client, int operation) {
+    private static void handleOperation(Client client, int operation, List operations, Server server) {
         Scanner sc = new Scanner(System.in);
         try {
             if(!client.isLoggedIn()) {
@@ -48,63 +58,89 @@ public class TestMain {
                         System.out.println("Session terminated...");
                         break;
                     case 1:
+                        sc = new Scanner(System.in);
                         System.out.println("Enter your user name");
                         userName = sc.nextLine();
                         System.out.println("Enter your password");
                         password = sc.nextLine();
-                        if(client.handleLogIn(userName, password)){
+                        String role = client.handleLogIn(userName,password);
+                        if(!role.equals("")){
                             client.setClientName(userName);
+                            client.setRole(role);
                             client.logClientIn(true);
-                            System.out.println("Client logged in");
+                            System.out.println("********* Print server operations *************");
                         }
                         else
                             System.out.println("Client could NOT be logged in");
                         break;
-                    case 2:
-                        System.out.println("Select user name");
-                        userName = sc.nextLine();
-                        System.out.println("Create a password");
-                        password = sc.nextLine();
-                        if(client.registerClient(userName,password))
-                            System.out.println(userName + " registered, now you can login");
-                        else
-                            System.out.println("Error occurred client not registered!");
-                        break;
                 }
             }else {
-                switch (operation) {
-                    case 1:
-                        client.print("Filename", "myPrinter");
+                int selectedOperation = sc.nextInt();
+                String op = (String) operations.get(selectedOperation);
+                switch (op){
+                    case "Quit":
+                        client.logClientIn(false);
+                        System.out.println(client.getClientName() + " logged out.");
                         break;
-                    case 2:
+                    case "Register User":
+                        boolean registered = false;
+                        while (!registered){
+                            Scanner scc = new Scanner(System.in);
+                            System.out.print("Enter user name: ");
+                            String userName = scc.nextLine();
+                            System.out.print("Enter password: ");
+                            String password = scc.nextLine();
+                            System.out.print("Enter role: ");
+                            String role = scc.nextLine();
+                            if (!validateRole(role)){
+                                System.out.println("Invalid Role! Valid Roles are: ");
+                                server.getRoles().forEach(item-> System.out.println(item));
+                            }
+
+                            if(!client.registerClient(userName,password,role)) {
+                                System.out.println("Something went wrong, user not registered...");
+                            }else
+                                registered = true;
+                        }
+                        break;
+                    case "Change users role":
+                        Scanner sccc = new Scanner(System.in);
+                        System.out.print("Enter user name: ");
+                        String userName = sccc.nextLine();
+                        System.out.print("Enter new Role: ");
+                        String role = sccc.nextLine();
+                        if (!validateRole(role)){
+                            System.out.println("Invalid Role! Valid Roles are: ");
+                            server.getRoles().forEach(item-> System.out.println(item));
+                        }else
+                            client.changeUsersRole(userName, role);
+                        break;
+                    case "print":
+                        client.print("MyFileName", "My printer");
+                        break;
+                    case "queue":
                         client.queue();
                         break;
-                    case 3:
-                        client.topQueue(1);
+                    case "topQueue":
+                        client.topQueue(10);
                         break;
-                    case 4:
+                    case "start":
                         client.start();
                         break;
-                    case 5:
+                    case "stop":
                         client.stop();
                         break;
-                    case 6:
+                    case "restart":
                         client.restart();
                         break;
-                    case 7:
+                    case "status":
                         client.serverStatus();
                         break;
-                    case 8:
-                        client.readConfig("MyParameter");
+                    case "readConfig":
+                        client.readConfig("Some parameter");
                         break;
-                    case 9:
-                        client.setConfig("MyParameter");
-                        break;
-                    case 10:
-                        client.logClientIn(false);
-                        break;
-                    case 11:
-                        System.out.println("Client Name: " + client.getClientName());
+                    case "setConfig":
+                        client.setConfig("Some other parameter");
                         break;
                 }
             }
@@ -113,32 +149,16 @@ public class TestMain {
         }
     }
 
-    private static void printMenu() {
+    private static void startMenu(){
         System.out.println();
-        System.out.println("******Print server*******");
-        System.out.println("Select an operation");
-        System.out.println("1) print(String filename, String printer)");
-        System.out.println("2) queue()");
-        System.out.println("3) topQueue(int job)");
-        System.out.println("4) start()");
-        System.out.println("5) stop()");
-        System.out.println("6) restart()");
-        System.out.println("7) status()");
-        System.out.println("8) readConfig(String parameter)");
-        System.out.println("9) setConfig(String parameter, String value)");
-        System.out.println("10) Logout");
-        System.out.println("11) User details");
-        System.out.println();
-    }
-
-    private static void logInMenu() {
-        System.out.println();
-        System.out.println("******Print server*******");
+        System.out.println("******Welcome to Print server, choose an operation*******");
         System.out.println("Select an operation");
         System.out.println("0) Quit - terminate");
         System.out.println("1) Login");
-        System.out.println("2) Register");
         System.out.println();
+    }
 
+    private static boolean validateRole(String role) {
+        return role.equals(Role.MANAGER) || role.equals(Role.TECHNICIAN) || role.equals(Role.POWER_USER) || role.equals(Role.USER);
     }
 }

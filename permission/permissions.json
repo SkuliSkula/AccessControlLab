@@ -1,8 +1,6 @@
 {
-	"permissions": [{
-		"Manager": ["print", "queue", "topQueue", "start", "stop", "restart", "status", "readConfig", "setConfig"],
-		"Technician": ["start", "stop", "restart", "status", "readConfig", "setConfig"],
-		"PowerUser": ["print", "queue", "topQueue", "restart"],
-		"User": ["print", "queue"]
-	}]
+	"Manager": ["Register User", "Change users role", "print", "queue", "topQueue", "start", "stop", "restart", "status", "readConfig", "setConfig"],
+	"Technician": ["start", "stop", "restart", "status", "readConfig", "setConfig"],
+	"PowerUser": ["print", "queue", "topQueue", "restart"],
+	"User": ["print", "queue"]
 }

@@ -13,6 +13,7 @@ public class Client extends UnicastRemoteObject implements Serializable {
     private boolean isLoggedIn = false;
     private String userName;
     private Registry registry;
+    private String role;
     public Client(Registry registry) throws RemoteException {
         this.userName = "";
         this.registry = registry;
@@ -65,36 +66,27 @@ public class Client extends UnicastRemoteObject implements Serializable {
     public void setClientName(String userName) {
         this.userName = userName;
     }
-    public boolean handleLogIn(String userName, String password) throws RemoteException {
+    public String handleLogIn(String userName, String password) throws RemoteException {
         return server.handleLogIn(userName, password);
     }
-    public boolean registerClient(String userName, String password) throws RemoteException {
-        if(!checkPasswordStrength(password)) {
-            System.out.println("The password needs to contain upper case letter, characters and numbers and be 8 characters or longer");
-            return false;
-        }else if(!checkUserName(userName)) {
-            System.out.println("The user name has to longer than 5 characters");
-            return false;
-        }
-        else
-            return server.registerClient(userName, password);
+    public boolean registerClient(String userName, String password, String role) throws RemoteException {
+       return server.registerClient(userName,password,role);
+    }
+
+    public void changeUsersRole(String userName, String role) throws RemoteException {
+        server.changeUsersRole(userName, role);
     }
     public boolean isLoggedIn() {
         return this.isLoggedIn;
     }
-
     public String getClientName(){
         return this.userName;
     }
-    private boolean checkPasswordStrength(String password){
-        if(password.length() < 8){
-            return false;
-        }
-        return password.matches("(([A-Z].*[0-9])|([0-9].*[A-Z]))");
+    public void setRole(String role) {
+        this.role = role;
     }
-
-    private boolean checkUserName(String userName) {
-        return userName.length() > 4;
+    public  String getRole() {
+        return this.role;
     }
 
 }

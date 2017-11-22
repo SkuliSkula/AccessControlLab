@@ -1,5 +1,6 @@
 package server;
 
+import accesscontrol.Role;
 import authentication.Authentication;
 import authentication.JSONHandler;
 
@@ -8,16 +9,22 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Server extends UnicastRemoteObject implements IPrintServer {
     private Authentication authenticationService;
     private JSONHandler jsonHandler;
+    private ServerManager serverManager;
+    private Role role;
     public Server() throws RemoteException {
         super(1099, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory(null, null, true));
         try {
             setSslSettings();
             jsonHandler = new JSONHandler();
             authenticationService = new Authentication(jsonHandler);
+            serverManager = new ServerManager(jsonHandler,authenticationService);
+            role = new Role(jsonHandler);
             System.out.println("Starting server on port 1099...");
         } catch (Exception e) {
             System.out.println("Failed to construct server... " + e.getMessage());
@@ -113,25 +120,53 @@ public class Server extends UnicastRemoteObject implements IPrintServer {
         System.out.println("setConfig with " + parameter + " parameter");
     }
     @Override
-    public boolean handleLogIn(String userName, String password) throws RemoteException {
-        boolean loginSuccessful = false;
+    public String handleLogIn(String userName, String password) throws RemoteException {
+        String role = "";
         if(authenticationService != null) {
             try{
-                loginSuccessful = authenticationService.handleLogIn(userName, password);
+                role = authenticationService.handleLogIn(userName, password);
             }catch (IOException e) {
                 e.printStackTrace();
             }
         }
-            return loginSuccessful;
+            return role;
     }
     @Override
-    public boolean registerClient(String userName, String password) throws RemoteException {
-        boolean registrationSuccessful = false;
-        try{
-            registrationSuccessful = authenticationService.registerUser(userName, password);
-        }catch (IOException e) {
+    public boolean registerClient(String userName, String password, String role) throws RemoteException {
+        boolean results = false;
+        try {
+             results = serverManager.registerClient(userName,password,role);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return registrationSuccessful;
+        return results;
+    }
+
+    public void listUsersByRole(String role) {
+        serverManager.listUsersByRole(role);
+    }
+    @Override
+    public void changeUsersRole(String userName, String newRole) throws RemoteException {
+        try {
+            serverManager.changeRole(userName, newRole);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<String> getRoles() {
+        return this.role.getRolesList();
+    }
+    /*Main method to create the users on the server*/
+    public static void main(String[] args) {
+        try{
+            Server server = new Server();
+            //Scanner in = new Scanner(System.in);
+            server.listUsersByRole("User");
+
+        }catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
     }
 }
